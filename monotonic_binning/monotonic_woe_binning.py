@@ -1,16 +1,19 @@
 import os
+import warnings
+
 import pandas as pd
 import scipy.stats as stats
-import warnings
 import numpy as np
+
 from sklearn.base import BaseEstimator, TransformerMixin
 
 
-desired_width = 320
-pd.set_option('display.width', desired_width)
+DESIRED_WIDTH = 320
+pd.set_option('display.width', DESIRED_WIDTH)
 pd.set_option('display.max_columns', 130)
 warnings.filterwarnings("ignore")
 os.getcwd()
+
 
 class Binning(BaseEstimator, TransformerMixin):
     """Binning class.
@@ -47,11 +50,16 @@ class Binning(BaseEstimator, TransformerMixin):
         self.bins = object
         self.bucket = object
 
+
     def generate_summary(self):
         """Generate data summary.
         """
 
-        self.init_summary = self.dataset.groupby([self.column]).agg({self.y: ["mean", "std", "size"]}).rename({"mean": "means", "size": "nsamples", "std": "std_dev"}, axis=1)
+        self.init_summary = (self.dataset
+                            .groupby([self.column])
+                            .agg({self.y: ["mean", "std", "size"]})
+                            .rename({"mean": "means", "size": "nsamples", "std": "std_dev"},
+                             axis=1))
 
         self.init_summary.columns = self.init_summary.columns.droplevel(level=0)
 
@@ -62,6 +70,7 @@ class Binning(BaseEstimator, TransformerMixin):
         self.init_summary["std_dev"] = self.init_summary["std_dev"].fillna(0)
 
         self.init_summary = self.init_summary.sort_values([self.column], ascending=self.sign)
+
 
     def combine_bins(self):
         """_summary_
@@ -114,6 +123,7 @@ class Binning(BaseEstimator, TransformerMixin):
 
         self.bin_summary = summary.copy()
 
+
     def calculate_pvalues(self):
         """_summary_
         """
@@ -155,12 +165,13 @@ class Binning(BaseEstimator, TransformerMixin):
 
             summary["means"] = summary.apply(lambda row: row["est_means"] if row["p_value"] == max_p else row["means"],
                                              axis=1)
-            summary["nsamples"] = summary.apply(
-                lambda row: row["est_nsamples"] if row["p_value"] == max_p else row["nsamples"], axis=1)
-            summary["std_dev"] = summary.apply(
-                lambda row: np.sqrt(row["est_std_dev2"]) if row["p_value"] == max_p else row["std_dev"], axis=1)
+            summary["nsamples"] = summary.apply(lambda row: row["est_nsamples"] if row["p_value"] == max_p else row["nsamples"],
+                                             axis=1)
+            summary["std_dev"] = summary.apply(lambda row: np.sqrt(row["est_std_dev2"]) if row["p_value"] == max_p else row["std_dev"],
+                                             axis=1)
 
         self.pvalue_summary = summary.copy()
+
 
     def calculate_woe(self):
         """_summary_
@@ -185,6 +196,7 @@ class Binning(BaseEstimator, TransformerMixin):
         self.total_iv = np.sum(woe_summary["IV_components"])
         self.woe_summary = woe_summary
 
+
     def generate_bin_labels(self,row):
         """_summary_
 
@@ -196,6 +208,7 @@ class Binning(BaseEstimator, TransformerMixin):
         """
 
         return "-".join(map(str, np.sort([row[self.column], row[self.column + "_shift"]])))
+
 
     def generate_final_dataset(self):
         """_summary_
@@ -212,10 +225,10 @@ class Binning(BaseEstimator, TransformerMixin):
 
         if self.sign == False:
             self.woe_summary.loc[0, self.column + "_shift"] = -np.inf
-            self.bins = np.sort(list(self.woe_summary[self.column]) + [np.Inf,-np.Inf])
+            self.bins = np.sort(list(self.woe_summary[self.column]) + [np.Inf, -np.Inf])
         else:
             self.woe_summary.loc[len(self.woe_summary) - 1, self.column + "_shift"] = np.inf
-            self.bins = np.sort(list(self.woe_summary[self.column]) + [np.Inf,-np.Inf])
+            self.bins = np.sort(list(self.woe_summary[self.column]) + [np.Inf, -np.Inf])
 
         self.woe_summary["labels"] = self.woe_summary.apply(self.generate_bin_labels, axis=1)
 
@@ -223,6 +236,7 @@ class Binning(BaseEstimator, TransformerMixin):
 
         self.dataset["bins"] = self.dataset["bins"].astype(str)
         self.dataset['bins'] = self.dataset['bins'].map(lambda x: x.lstrip('[').rstrip(')'))
+
 
     def fit(self, dataset):
         """_summary_
@@ -240,6 +254,7 @@ class Binning(BaseEstimator, TransformerMixin):
         self.calculate_woe()
         self.generate_final_dataset()
 
+
     def transform(self, test_data):
         """_summary_
 
@@ -249,7 +264,10 @@ class Binning(BaseEstimator, TransformerMixin):
         Returns:
             _type_: _description_
         """
-        
-        test_data[self.column+"_bins"] = pd.cut(test_data[self.column], self.bins, right=self.bucket, precision=0)
+
+        test_data[self.column+"_bins"] = pd.cut(test_data[self.column],
+                                                self.bins,
+                                                right=self.bucket,
+                                                precision=0)
         return test_data
 
