@@ -2,8 +2,8 @@ from monotonic_binning.monotonic_woe_binning import Binning
 import pandas as pd
 
 # Data available at https://online.stat.psu.edu/stat508/resource/analysis/gcd
-train = pd.read_csv("Training50.csv")
-test = pd.read_csv("Test50.csv")
+train = pd.read_csv("data/Training50.csv")
+test = pd.read_csv("data/Test50.csv")
 
 var = "Age..years." # variable to be binned
 y_var = "Creditability" # the target variable
