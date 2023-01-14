@@ -188,4 +188,7 @@ poetry.toml
 .history
 .ionide
 
+# Custom additions
+_README.md  # readme meants for own notes
+
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python
