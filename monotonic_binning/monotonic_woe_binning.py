@@ -13,8 +13,23 @@ warnings.filterwarnings("ignore")
 os.getcwd()
 
 class Binning(BaseEstimator, TransformerMixin):
+    """Binning class.
+
+    Attributes:
+
+    """
 
     def __init__(self, y, n_threshold, y_threshold, p_threshold, sign=False):
+        """Initialization.
+
+        Args:
+            y (_type_): _description_
+            n_threshold (_type_): _description_
+            y_threshold (_type_): _description_
+            p_threshold (_type_): _description_
+            sign (bool, optional): _description_. Defaults to False.
+        """
+
         self.n_threshold = n_threshold
         self.y_threshold = y_threshold
         self.p_threshold = p_threshold
@@ -33,6 +48,8 @@ class Binning(BaseEstimator, TransformerMixin):
         self.bucket = object
 
     def generate_summary(self):
+        """Generate data summary.
+        """
 
         self.init_summary = self.dataset.groupby([self.column]).agg({self.y: ["mean", "std", "size"]}).rename({"mean": "means", "size": "nsamples", "std": "std_dev"}, axis=1)
 
@@ -47,6 +64,9 @@ class Binning(BaseEstimator, TransformerMixin):
         self.init_summary = self.init_summary.sort_values([self.column], ascending=self.sign)
 
     def combine_bins(self):
+        """_summary_
+        """
+
         summary = self.init_summary.copy()
 
         while True:
@@ -95,6 +115,9 @@ class Binning(BaseEstimator, TransformerMixin):
         self.bin_summary = summary.copy()
 
     def calculate_pvalues(self):
+        """_summary_
+        """
+
         summary = self.bin_summary.copy()
         while True:
             summary["means_lead"] = summary["means"].shift(-1)
@@ -140,6 +163,9 @@ class Binning(BaseEstimator, TransformerMixin):
         self.pvalue_summary = summary.copy()
 
     def calculate_woe(self):
+        """_summary_
+        """
+
         woe_summary = self.pvalue_summary[[self.column, "nsamples", "means"]]
 
         woe_summary["bads"] = woe_summary["means"] * woe_summary["nsamples"]
@@ -160,9 +186,21 @@ class Binning(BaseEstimator, TransformerMixin):
         self.woe_summary = woe_summary
 
     def generate_bin_labels(self,row):
+        """_summary_
+
+        Args:
+            row (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+
         return "-".join(map(str, np.sort([row[self.column], row[self.column + "_shift"]])))
 
     def generate_final_dataset(self):
+        """_summary_
+        """
+
         if self.sign == False:
             shift_var = 1
             self.bucket = True
@@ -187,6 +225,12 @@ class Binning(BaseEstimator, TransformerMixin):
         self.dataset['bins'] = self.dataset['bins'].map(lambda x: x.lstrip('[').rstrip(')'))
 
     def fit(self, dataset):
+        """_summary_
+
+        Args:
+            dataset (_type_): _description_
+        """
+
         self.dataset = dataset
         self.column = self.dataset.columns[self.dataset.columns != self.y][0]
 
@@ -197,6 +241,15 @@ class Binning(BaseEstimator, TransformerMixin):
         self.generate_final_dataset()
 
     def transform(self, test_data):
+        """_summary_
+
+        Args:
+            test_data (_type_): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        
         test_data[self.column+"_bins"] = pd.cut(test_data[self.column], self.bins, right=self.bucket, precision=0)
         return test_data
 
