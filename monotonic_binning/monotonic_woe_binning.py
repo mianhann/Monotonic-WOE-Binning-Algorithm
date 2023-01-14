@@ -167,6 +167,16 @@ class Binning(BaseEstimator, TransformerMixin):
                 axis=1,
             )
 
+            # TODO: the above could be vectorized (cmd + shift + /)
+            # mask = ((summary["nsamples"] < self.n_threshold)
+            #         | (summary["nsamples_lead"] < self.n_threshold)
+            #         | (summary["means"] * summary["nsamples"] < self.y_threshold)
+            #         | (summary["means_lead"] * summary["nsamples_lead"] < self.y_threshold)
+            # )
+            # # np.where could work here
+            # summary.loc[mask, "p_value"] = summary["p_value"] + 1
+            # summary.loc[~mask, "p_value"] = summary["p_value"]
+
             max_p = max(summary["p_value"])
             row_of_maxp = summary["p_value"].idxmax()
             row_delete = row_of_maxp + 1
@@ -274,7 +284,7 @@ class Binning(BaseEstimator, TransformerMixin):
         )
 
     def fit(self, dataset):
-        """_summary_
+        """TOOD: is this not basically a fit-transform method
 
         Args:
             dataset (_type_): _description_
@@ -290,13 +300,13 @@ class Binning(BaseEstimator, TransformerMixin):
         self.generate_final_dataset()
 
     def transform(self, test_data):
-        """_summary_
+        """Add binned variable to provided dataset.
 
         Args:
-            test_data (_type_): _description_
+            test_data (_type_): Test data.
 
         Returns:
-            _type_: _description_
+            _type_: Test data with additional binned columns.
         """
 
         test_data[self.column + "_bins"] = pd.cut(
