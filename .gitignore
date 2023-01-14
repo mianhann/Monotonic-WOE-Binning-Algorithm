@@ -189,6 +189,7 @@ poetry.toml
 .ionide
 
 # Custom additions
-NOTES.md  # file meant for own notes
+notes/*  # folder meant for own notes
+notes/notes.md
 
-# End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python
+# End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,pythons
