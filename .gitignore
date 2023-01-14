@@ -191,5 +191,6 @@ poetry.toml
 # Custom additions
 notes/*  # folder meant for own notes
 notes/notes.md
+notes/notes.ipynb
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,pythons
