@@ -167,12 +167,15 @@ class Binning(BaseEstimator, TransformerMixin):
             #     axis=1,
             # )
             # TODO: the above could be vectorized (cmd + shift + /)
-            mask = ((summary["nsamples"] < self.n_threshold)
-                    | (summary["nsamples_lead"] < self.n_threshold)
-                    | (summary["means"] * summary["nsamples"] < self.y_threshold)
-                    | (summary["means_lead"] * summary["nsamples_lead"] < self.y_threshold)
+            mask = (
+                (summary["nsamples"] < self.n_threshold)
+                | (summary["nsamples_lead"] < self.n_threshold)
+                | (summary["means"] * summary["nsamples"] < self.y_threshold)
+                | (summary["means_lead"] * summary["nsamples_lead"] < self.y_threshold)
             )
-            summary["p_value"] = np.where(mask, summary["p_value"] + 1, summary["p_value"])
+            summary["p_value"] = np.where(
+                mask, summary["p_value"] + 1, summary["p_value"]
+            )
 
             max_p = max(summary["p_value"])
             row_of_maxp = summary["p_value"].idxmax()
