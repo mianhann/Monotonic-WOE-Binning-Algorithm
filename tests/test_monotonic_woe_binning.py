@@ -15,13 +15,24 @@ def test_initialization():
     test = pd.read_csv("data/Test50.csv")
     # Specify variables
     var = "Age..years."  # variable to be binned
-    y_var = "Creditability"  # the target variable
+    y = "Creditability"  # the target variable
+    n_threshold = 50
+    y_threshold = 10
+    p_threshold = 0.35
     # Create binning object for testing
     bin_object = Binning(
-        y_var, n_threshold=50, y_threshold=10, p_threshold=0.35, sign=False
+        y,
+        n_threshold=n_threshold,
+        y_threshold=y_threshold,
+        p_threshold=p_threshold,
+        sign=False,
     )
-    # ...
-    assert bin_object.y_var == y_var
+    # Property assertions
+    assert bin_object.y == y
+    assert bin_object.n_threshold == n_threshold
+    assert bin_object.y_threshold == y_threshold
+    assert bin_object.p_threshold == p_threshold
+    assert bin_object.sign == False
 
 
 def test_generate_summary():
