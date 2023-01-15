@@ -157,25 +157,22 @@ class Binning(BaseEstimator, TransformerMixin):
 
             summary["p_value"] = 1 - stats.norm.cdf(summary["z_value"])
 
-            summary["p_value"] = summary.apply(
-                lambda row: row["p_value"] + 1
-                if (row["nsamples"] < self.n_threshold)
-                | (row["nsamples_lead"] < self.n_threshold)
-                | (row["means"] * row["nsamples"] < self.y_threshold)
-                | (row["means_lead"] * row["nsamples_lead"] < self.y_threshold)
-                else row["p_value"],
-                axis=1,
-            )
-
-            # TODO: the above could be vectorized (cmd + shift + /)
-            # mask = ((summary["nsamples"] < self.n_threshold)
-            #         | (summary["nsamples_lead"] < self.n_threshold)
-            #         | (summary["means"] * summary["nsamples"] < self.y_threshold)
-            #         | (summary["means_lead"] * summary["nsamples_lead"] < self.y_threshold)
+            # summary["p_value"] = summary.apply(
+            #     lambda row: row["p_value"] + 1
+            #     if (row["nsamples"] < self.n_threshold)
+            #     | (row["nsamples_lead"] < self.n_threshold)
+            #     | (row["means"] * row["nsamples"] < self.y_threshold)
+            #     | (row["means_lead"] * row["nsamples_lead"] < self.y_threshold)
+            #     else row["p_value"],
+            #     axis=1,
             # )
-            # # np.where could work here
-            # summary.loc[mask, "p_value"] = summary["p_value"] + 1
-            # summary.loc[~mask, "p_value"] = summary["p_value"]
+            # TODO: the above could be vectorized (cmd + shift + /)
+            mask = ((summary["nsamples"] < self.n_threshold)
+                    | (summary["nsamples_lead"] < self.n_threshold)
+                    | (summary["means"] * summary["nsamples"] < self.y_threshold)
+                    | (summary["means_lead"] * summary["nsamples_lead"] < self.y_threshold)
+            )
+            summary["p_value"] = np.where(mask, summary["p_value"] + 1, summary["p_value"])
 
             max_p = max(summary["p_value"])
             row_of_maxp = summary["p_value"].idxmax()
