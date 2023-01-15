@@ -177,7 +177,7 @@ class Binning(BaseEstimator, TransformerMixin):
                 mask, summary["p_value"] + 1, summary["p_value"]
             )
 
-            max_p = max(summary["p_value"])
+            max_p = np.max(summary["p_value"].values)
             row_of_maxp = summary["p_value"].idxmax()
             row_delete = row_of_maxp + 1
 
@@ -187,24 +187,30 @@ class Binning(BaseEstimator, TransformerMixin):
             else:
                 break
 
-            summary["means"] = summary.apply(
-                lambda row: row["est_means"]
-                if row["p_value"] == max_p
-                else row["means"],
-                axis=1,
-            )
-            summary["nsamples"] = summary.apply(
-                lambda row: row["est_nsamples"]
-                if row["p_value"] == max_p
-                else row["nsamples"],
-                axis=1,
-            )
-            summary["std_dev"] = summary.apply(
-                lambda row: np.sqrt(row["est_std_dev2"])
-                if row["p_value"] == max_p
-                else row["std_dev"],
-                axis=1,
-            )
+            # summary["means"] = summary.apply(
+            #     lambda row: row["est_means"]
+            #     if row["p_value"] == max_p
+            #     else row["means"],
+            #     axis=1,
+            # )
+            # TODO: refactor above "means"
+            summary["means"] = np.where(summary["p_value"] == max_p, summary["est_means"], summary["means"])
+            # summary["nsamples"] = summary.apply(
+            #     lambda row: row["est_nsamples"]
+            #     if row["p_value"] == max_p
+            #     else row["nsamples"],
+            #     axis=1,
+            # )
+            # TODO: refactor above "nsamples"
+            summary["nsamples"] = np.where(summary["p_value"] == max_p, summary["est_nsamples"], summary["nsamples"])
+            # summary["std_dev"] = summary.apply(
+            #     lambda row: np.sqrt(row["est_std_dev2"])
+            #     if row["p_value"] == max_p
+            #     else row["std_dev"],
+            #     axis=1,
+            # )
+            # TODO: refactor above "nsamples"
+            summary["std_dev"] = np.where(summary["p_value"] == max_p, summary["est_std_dev2"], summary["std_dev"])
 
         self.pvalue_summary = summary.copy()
 
@@ -213,24 +219,24 @@ class Binning(BaseEstimator, TransformerMixin):
 
         woe_summary = self.pvalue_summary[[self.column, "nsamples", "means"]]
 
-        woe_summary["bads"] = woe_summary["means"] * woe_summary["nsamples"]
-        woe_summary["goods"] = woe_summary["nsamples"] - woe_summary["bads"]
+        woe_summary["bads"] = woe_summary["means"].values * woe_summary["nsamples"].values
+        woe_summary["goods"] = woe_summary["nsamples"].values - woe_summary["bads"].values
 
-        total_goods = np.sum(woe_summary["goods"])
-        total_bads = np.sum(woe_summary["bads"])
+        total_goods = np.sum(woe_summary["goods"].values)
+        total_bads = np.sum(woe_summary["bads"].values)
 
-        woe_summary["dist_good"] = woe_summary["goods"] / total_goods
-        woe_summary["dist_bad"] = woe_summary["bads"] / total_bads
+        woe_summary["dist_good"] = woe_summary["goods"].values / total_goods
+        woe_summary["dist_bad"] = woe_summary["bads"].values / total_bads
 
         woe_summary["WOE_" + self.column] = np.log(
-            woe_summary["dist_good"] / woe_summary["dist_bad"]
+            woe_summary["dist_good"].values / woe_summary["dist_bad"].values
         )
 
         woe_summary["IV_components"] = (
-            woe_summary["dist_good"] - woe_summary["dist_bad"]
-        ) * woe_summary["WOE_" + self.column]
+            woe_summary["dist_good"].values - woe_summary["dist_bad"].values
+        ) * woe_summary["WOE_" + self.column].values
 
-        self.total_iv = np.sum(woe_summary["IV_components"])
+        self.total_iv = np.sum(woe_summary["IV_components"].values)
         self.woe_summary = woe_summary
 
     def generate_bin_labels(self, row):
