@@ -197,3 +197,4 @@ notes/notes.ipynb
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,pythons
 tests/profile.html
 tests/profile.json
+notes/demo_run.prof
