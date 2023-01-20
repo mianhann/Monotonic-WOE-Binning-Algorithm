@@ -71,6 +71,7 @@ class Binning(BaseEstimator, TransformerMixin):
             [self.column], ascending=self.sign
         )
 
+
     def combine_bins(self):
         """_summary_"""
 
@@ -297,6 +298,7 @@ class Binning(BaseEstimator, TransformerMixin):
         """
 
         self.dataset = dataset
+        # only two columns expected, the one that is not the target is the variable to be binned
         self.column = self.dataset.columns[self.dataset.columns != self.y][0]
 
         self.generate_summary()
