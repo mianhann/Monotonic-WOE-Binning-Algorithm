@@ -1,21 +1,40 @@
-import pytest
 import pandas as pd
+import pytest
 
 from monotonic_binning.monotonic_woe_binning import Binning
 
+###
+# pytest fixtures
+###
+
+################################################################################################################
+
+
+@pytest.fixture(scope="session")
+def testing_data_train():
+    # Data available at https://online.stat.psu.edu/stat508/resource/analysis/gcd
+    train = pd.read_csv("data/Training50.csv")
+    test = pd.read_csv("data/Test50.csv")
+    return train
+
+
+@pytest.fixture(scope="session")
+def testing_data_test():
+    # Data available at https://online.stat.psu.edu/stat508/resource/analysis/gcd
+    test = pd.read_csv("data/Test50.csv")
+    return test
+
+
+################################################################################################################
 
 ###
-# test cases? (use pytest functionality)
+# pytest tests
 ###
 
 
 def test_initialization():
-    # Data available at https://online.stat.psu.edu/stat508/resource/analysis/gcd
-    train = pd.read_csv("data/Training50.csv")
-    test = pd.read_csv("data/Test50.csv")
     # Specify variables
-    var = "Age..years."  # variable to be binned
-    y = "Creditability"  # the target variable
+    y = "target_var"  # the target variable
     n_threshold = 50
     y_threshold = 10
     p_threshold = 0.35
@@ -35,12 +54,14 @@ def test_initialization():
     assert bin_object.sign == False
 
 
-def test_generate_summary():
-    """To avoid repeating class init, fixtures etc. should be used.
-    """
+def test_generate_summary(testing_data_train):
+    """To avoid repeating class init, fixtures etc. should be used."""
     # Data available at https://online.stat.psu.edu/stat508/resource/analysis/gcd
-    train = pd.read_csv("data/Training50.csv")
-    test = pd.read_csv("data/Test50.csv")
+    # train = pd.read_csv("data/Training50.csv")
+    # test = pd.read_csv("data/Test50.csv")
+    # replace the above data with a fixture
+    train = testing_data_train
+    ###
     # Specify variables
     var = "Age..years."  # variable to be binned
     y = "Creditability"  # the target variable
@@ -56,7 +77,9 @@ def test_generate_summary():
         sign=False,
     )
     bin_object.dataset = train
-    bin_object.column = bin_object.dataset.columns[bin_object.dataset.columns != bin_object.y][0]
+    bin_object.column = bin_object.dataset.columns[
+        bin_object.dataset.columns != bin_object.y
+    ][0]
     bin_object.generate_summary()
 
     assert isinstance(bin_object.init_summary, pd.DataFrame)
