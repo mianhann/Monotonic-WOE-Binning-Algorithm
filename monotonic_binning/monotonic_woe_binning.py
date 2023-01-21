@@ -1,12 +1,10 @@
 import os
 import warnings
 
+import numpy as np
 import pandas as pd
 import scipy.stats as stats
-import numpy as np
-
 from sklearn.base import BaseEstimator, TransformerMixin
-
 
 DESIRED_WIDTH = 320
 pd.set_option("display.width", DESIRED_WIDTH)
