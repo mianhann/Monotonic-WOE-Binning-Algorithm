@@ -189,12 +189,11 @@ poetry.toml
 .ionide
 
 # Custom additions
-notes/*  # folder meant for own notes
+notes/
 notes/notes.md
 notes/notes.ipynb
 .vscode/settings.json
-
-# End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,pythons
 tests/profile.html
 tests/profile.json
 notes/demo_run.prof
+notes/README_mh.md

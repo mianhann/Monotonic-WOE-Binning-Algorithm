@@ -1,10 +1,14 @@
+import numpy as np
 import pandas as pd
 import pytest
 
 from monotonic_binning.monotonic_woe_binning import Binning
 
+np.random.seed(42)
+
 ###
 # pytest fixtures
+# Data available at https://online.stat.psu.edu/stat508/resource/analysis/gcd
 ###
 
 ################################################################################################################
@@ -12,17 +16,67 @@ from monotonic_binning.monotonic_woe_binning import Binning
 
 @pytest.fixture(scope="session")
 def testing_data_train():
-    # Data available at https://online.stat.psu.edu/stat508/resource/analysis/gcd
+
     train = pd.read_csv("data/Training50.csv")
-    test = pd.read_csv("data/Test50.csv")
+
     return train
 
 
 @pytest.fixture(scope="session")
 def testing_data_test():
-    # Data available at https://online.stat.psu.edu/stat508/resource/analysis/gcd
+
     test = pd.read_csv("data/Test50.csv")
+
     return test
+
+
+@pytest.fixture(scope="session")
+def testing_data_train_bootstrap(n):
+
+    train = pd.read_csv("data/Training50.csv")
+    data_bs = train.sample(n=n, replace=True)
+
+    return data_bs
+
+
+@pytest.fixture(scope="session")
+def testing_data_test_bootstrap(n):
+
+    test = pd.read_csv("data/Test50.csv")
+    data_bs = test.sample(n=n, replace=True)
+
+    return data_bs
+
+
+################################################################################################################
+
+###
+# bin_object1
+###
+@pytest.fixture(scope="session")
+def bin_object1():
+
+    train = pd.read_csv("data/Training50.csv")
+    # Specify variables
+    var = "Age..years."  # variable to be binned
+    y = "Creditability"  # the target variable
+    n_threshold = 50
+    y_threshold = 10
+    p_threshold = 0.35
+    # Create binning object for testing
+    bin_object1 = Binning(
+        y,
+        n_threshold=n_threshold,
+        y_threshold=y_threshold,
+        p_threshold=p_threshold,
+        sign=False,
+    )
+    bin_object1.dataset = train
+    bin_object1.column = bin_object1.dataset.columns[
+        bin_object1.dataset.columns != bin_object1.y
+    ][0]
+
+    return bin_object1
 
 
 ################################################################################################################
@@ -54,40 +108,15 @@ def test_initialization():
     assert bin_object.sign == False
 
 
-def test_generate_summary(testing_data_train):
-    """To avoid repeating class init, fixtures etc. should be used."""
-    # Data available at https://online.stat.psu.edu/stat508/resource/analysis/gcd
-    # train = pd.read_csv("data/Training50.csv")
-    # test = pd.read_csv("data/Test50.csv")
-    # replace the above data with a fixture
-    train = testing_data_train
-    ###
-    # Specify variables
-    var = "Age..years."  # variable to be binned
-    y = "Creditability"  # the target variable
-    n_threshold = 50
-    y_threshold = 10
-    p_threshold = 0.35
-    # Create binning object for testing
-    bin_object = Binning(
-        y,
-        n_threshold=n_threshold,
-        y_threshold=y_threshold,
-        p_threshold=p_threshold,
-        sign=False,
-    )
-    bin_object.dataset = train
-    bin_object.column = bin_object.dataset.columns[
-        bin_object.dataset.columns != bin_object.y
-    ][0]
-    bin_object.generate_summary()
+def test_generate_summary(bin_object1):
+    bin_object1.generate_summary()
 
-    assert isinstance(bin_object.init_summary, pd.DataFrame)
-    assert ~bin_object.init_summary.empty
+    assert isinstance(bin_object1.init_summary, pd.DataFrame)
+    assert ~bin_object1.init_summary.empty
 
 
-def test_combine_bins():
-    pass
+def test_combine_bins(bin_object1):
+    assert ~bin_object1.bin_summary.empty
 
 
 def test_calculate_pvalues():

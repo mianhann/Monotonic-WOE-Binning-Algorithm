@@ -1,31 +1,33 @@
 # Monotonic-WOE-Binning-Algorithm
 
-Developed and documented by **John Selvam**
+Originally developed and documented by **John Selvam**. The current project is a forked version, aiming to build on top of the original.
 
-### How to use
+<!-- ### How to use
 
 1. pip install monotonic_binning: `pip install monotonic-binning` (note that earlier versions were hosted on `test.pypi.org` but the latest version is on `pypi.org`) 
 2. Import monotonic_woe_binning: `from monotonic_binning import monotonic_woe_binning as bin`
 3. Use `fit` and `transform` to bin variables for train and test datasets respectively
 
+-->
+
 ### Demo Run Details
 
 The `demo_run.py` file available under `tests/` uses German credit card data from [Penn State's online course](https://online.stat.psu.edu/stat508/resource/analysis/gcd) and gives an overview of how to use the package.
 
-### Summary of Monotonic WOE 
+### Summary of Monotonic WOE
 
 The weight-of-evidence (WOE) method of evaluating strength of predictors is an understated one in the field of analytics.
 While it is standard fare in credit risk modelling, it is under-utilized in other settings though its formulation makes it
 generic enough for use in other domains too. The WOE method primarily aims to bin variables into buckets that deliver the most
 information to a potential classification model. Quite often, WOE binning methods measure effectiveness of such bins using Information Value
 or IV. For a more detailed introduction to WOE and IV, [this article](http://ucanalytics.com/blogs/information-value-and-weight-of-evidencebanking-case/)
-is a useful read. 
+is a useful read.
 
 In the world of credit risk modelling, regulatory oversight often requires that the variables that go into models
-are split into bins 
+are split into bins
 
 - whose weight of evidence (WOE) values maintain a monotonic relationship with the 1/0 variable (loan default or not default for example.)
-- are reasonably sized and large enough to be respresentative of population segments, and
+- are reasonably sized and large enough to be representative of population segments, and
 - optimize the IV value of the given variable in the process of this monotonic binning. 
 
 To exemplify the constraints such a problem, consider a simple dataset containing age and a default indicator (1 if defaulted, 0 if not).

@@ -1,14 +1,17 @@
-from monotonic_binning.monotonic_woe_binning import Binning
 import pandas as pd
+
+from monotonic_binning.monotonic_woe_binning import Binning
 
 # Data available at https://online.stat.psu.edu/stat508/resource/analysis/gcd
 train = pd.read_csv("./data/Training50.csv")
 test = pd.read_csv("./data/Test50.csv")
 
-var = "Age..years." # variable to be binned
-y_var = "Creditability" # the target variable
+var = "Age..years."  # variable to be binned
+y_var = "Creditability"  # the target variable
 
-bin_object = Binning(y_var, n_threshold = 50, y_threshold = 10, p_threshold = 0.35, sign=False)
+bin_object = Binning(
+    y_var, n_threshold=50, y_threshold=10, p_threshold=0.35, sign=False
+)
 bin_object.fit(train[[y_var, var]])
 
 # Print WOE summary
